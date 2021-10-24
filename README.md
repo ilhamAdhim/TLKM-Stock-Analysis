@@ -37,7 +37,71 @@ Untuk submission ini, saya mengambil data dari [Kaggle](https://www.kaggle.com) 
   * Close - Harga saham ketika diakhir period (datatype : float64)
   * Adj Close - Close value setelah mempertimbangkan dividen dan stock split (datatype : float64)
   * Volume - Jumlah transaksi saham di tanggal tersebut (datatype : float64)
+  
+<br>
+
+![Image data Overview](https://github.com/ilhamadhim/TLKM-Stock-Analysis/blob/master/assets/data_overview.png?raw=true)
 
 
+Dari data tersebut, terlihat bahwa rata-rata harga saham TLKM disajikan sangat lengkap mulai dari Harga Open sampai Adj Close nya periode 2004 sampai 2020. Disertai dengan informasi penting lainnya, seperti harga saham tertinggi dan terendah dalam durasi tersebut.
 
-Dari data di atas terlihat bahwa rata-rata atau mean harga minya dari tahun 1987 hingga 2021 adalah US$46,352962. Untuk harga maximum atau tertingginya dari tahun 1987 hingga 2021 adalah sebesar US$143,95. Dan untuk harga minimum atau terendahnya menyentuh harga US$9,1.
+![Grafik Saham TLKM 2004 - 2021](https://github.com/ilhamadhim/TLKM-Stock-Analysis/blob/master/assets/data_understanding.png?raw=true)
+
+Dari grafik tersebut, dapat diambil kesimpulan bahwa harga saham TLKM mengalami perubahan secara signifikan dalam durasi tersebut. Pada tahun 2004 sampai 2008 merupakan lonjakan harga saham TLKM pertama, kemudian terjadi peningkatan yang sangat drastis di tahun 2012 - Q1 2018. Kemudian mengalami penurunan yang cukup signifikan di akhir tahun 2019 sampai 2 Oktober 2020 karena pengaruh COVID-19.
+
+## Data Preparation
+Dalam tahap ini, saya menyiapkan dataframe yang telah menyimpan data dari CSV tersebut untuk dilakukan beberapa pengecekan, yaitu memeriksa adanya null values dan duplikasi data. Ini perlu dilakukan untuk menjaga akurasi dari prediksi model yang akan kita lakukan di proses pelatihan data. 
+
+Berikut hasil cek data null oleh library **pandas** : <br>
+
+![Check null values](https://github.com/ilhamadhim/TLKM-Stock-Analysis/blob/master/assets/check-null-values.png?raw=true)
+
+Berikut hasil cek duplikasi data oleh library **pandas** : <br>
+
+![Check duplicate values](https://github.com/ilhamadhim/TLKM-Stock-Analysis/blob/master/assets/check-duplicate-values.png?raw=true)
+
+Selain pengecekan data, kita juga perlu untuk mengatur skala data. Hal ini perlu dilakukan agar skor MAE kita tidak menjadi terlalu besar, jika hal ini terjadi, akan mengakibatkan prediksi kita sangat buruk. Oleh karena itu, saya melakukan skala data menggunakan MinMax Scaler. Berikut formula dari MinMax Scaler: <br>
+
+![MinMax Scaler Formula](https://i.stack.imgur.com/ruy6L.png)
+
+
+## Modeling
+
+Dari banyaknya opsi penggunaan model yang ada untuk kasus Time Series, saya mencoba mengimplementasikan LSTM dalam pembuatan model. Selain karena ini merupakan pendekatan yang diajarkan di [Dicoding](https://www.dicoding.com/academies/185),  Beberapa keuntungan untuk menggunakan LSTM untuk kasus Time Series adalah:
+
+1. Tidak ada prasyarat tertentu dalam implementasi model
+2. Dapat bekerja dengan baik untuk neural network dengan fungsi non-linear
+3. Cocok untuk digunakan di dataset yang banyak
+4. Dapat mengatur parameter tuning secara kustom agar menyesuaikan bentuk data.
+
+Semakin kompleks sebuah model ML, maka kemungkinan model tersebut mengalami overfitting pun semakin tinggi. Walaupun secara arsitektur sudah cocok dengan data, menggunakan loss function yang tepat, dan metrik yang sesuai, masih ada kemungkinan overfitting. Oleh karena itu, selain LSTM saya juga menggunakan Dropout layer untuk mencegah terjadinya overfitting selama proses pelatihan data. Simpelnya, dropout layer yang berperan sebagai perantara hidden layer dan output layer ini dimatikan secara bergantian selama proses pelatihan data berlangsung. Dalam project ini, menggunakan dropout value sebesar 0.5, berikut ilustrasinya:
+<br>
+<br>
+![image](https://d17ivq9b7rppb3.cloudfront.net/original/academy/20200803125202b077a1253a77def9b9e4ae6b553bc1cc.gif)
+
+## Model Evaluation
+
+Berikut visualisasi untuk nilai MAE dan loss value di tahap pelatihan dan pengujian <br><br>
+![Model Evaluation Result](https://github.com/ilhamadhim/TLKM-Stock-Analysis/blob/master/assets/model_evaluation.png?raw=true)
+
+Berikut visualisasi untuk prediksi data latih harga saham TLKM dibandingkan dengan data aslinya dalam periode 28 September 2004 - 29 November 2016 (80% dataset) <br><br>
+![Prediction Result](https://github.com/ilhamadhim/TLKM-Stock-Analysis/blob/master/assets/model_prediction.png?raw=true)
+
+
+## Evaluation
+
+- ***Mean Absolute Error*** <br><br>
+![MAE Formula](https://github.com/ilhamadhim/TLKM-Stock-Analysis/blob/master/assets/MAE_Formula.png?raw=true)
+
+Metrik ini digunakan untuk mengetahui kesalahan model atau memberitahu seberapa besar error model yang sudah di latih kepada data yang akan diuji.
+
+- ***Mean Squared Error***:  <br><br>
+![MSE Formula](https://miro.medium.com/max/808/1*-e1QGatrODWpJkEwqP4Jyg.png)<br>
+Fungsi loss yang paling sederhana dan sering digunakan untuk kasus regresi
+
+<br>
+
+Model deep learning yang telah dibuat dapat melakukan proses training data dengan metrik dan loss function tersebut. Dalam prosesnya, terlihat hasil MAE yang relatif kecil yaitu sekitar 0.0186. Hal ini menunjukan bahwa model ini memiliki error dibawah 1.8%
+
+## Penutup
+Demikian laporan dan metrik dari implementasi Machine Learning untuk analisis harga saham TLKM oleh PT. Telkom Indonesia Tbk. Terimakasih telah membaca laporan ini, semoga bermanfaat.
