@@ -8,19 +8,20 @@ Dikutip dari artikel [Kompas](https://money.kompas.com/read/2021/08/24/161914926
 
 > "Saham blue chip adalah jenis saham dari perusahaan dengan kondisi keuangan prima, serta beroperasi selama bertahun lamanya. Kondisi keuangan prima terukur dari pendapatan perusahaan yang tumbuh stabil setiap tahun, dan kerap membagikan dividen kepada investor."
 
-Untuk [Daftar saham Bluechip](https://superyou.co.id/blog/keuangan/rekomendasi-saham-blue-chip/) di Indonesia cukup bervariasi. Dalam pengerjaan submission ini, saya mencoba untuk memprediksi harga saham TLKM oleh PT. Telkom Indonesia  (Persero) Tbk. menggunakan data yang ada.
-
+Untuk [Daftar saham Bluechip](https://superyou.co.id/blog/keuangan/rekomendasi-saham-blue-chip/) di Indonesia cukup bervariasi. Dalam pengerjaan submission ini, saya mencoba untuk memprediksi harga saham TLKM oleh PT. Telkom Indonesia (Persero) Tbk. menggunakan data yang ada.
 
 
 ## Business Understanding
 ### Problem Statements
-Membuat prediksi harga saham PT Telkom Indonesia (Persero) Tbk. berdasarkan dataset yang ada.
+Permasalahan inti dari projek ini adalah adanya peningkatan wawasan finansial dan investasi saham di masyarakat di masa pandemi COVID-19, namun tidak diimbangi dengan pengetahuan saham perusahaan mana yang aman untuk diinvestasikan. Oleh karena itu, diperlukan sebuah sistem untuk menganalisis dan memprediksi bagaimana pergerakan saham *bluechip* dalam beberapa tahun terakhir. Dalam projek ini, saham *bluechip* yang saya gunakan adalah saham dari PT. Telkom Indonesia (Persero) Tbk.
 
 ### Goals
-Memprediksi harga saham TLKM
+Membuat prediksi harga saham PT Telkom Indonesia (Persero) Tbk. berdasarkan dataset yang ada.
 
 ### Solution statements
 Karena dataset terkait hanya berisi tentang data tanggal dan harga, maka solusi yang sangat tepat untuk masalah ini adalah dengan menggunakan pendekatan Time Series. 
+
+Saya menggunakan 1 buah layer LSTM (Long Short Term Memory) dalam model.LSTM adalah jenis jaringan saraf berulang yang memiliki kemampuan untuk mengingat atau melupakan output dari data yang melalui arsitekturnya. Ini dilakukan tanpa mengubah konteks dari data yang ada. Dengan pendekatan ini, LSTM mampu mengatasi masalah RNN, yang mana RNN tidak mampu memprediksi kata yang disimpan dalam memori jangka panjang. Dengan bertambahnya panjang celah, RNN tidak memberikan kinerja yang efisien. Berbeda dengan LSTM yang dapat secara default menyimpan informasi. Dengan kinerja seperti ini, LSTM cocok untuk digunakan dalam proses analisa dan prediksi data deret waktu.
 
 Untuk kasus Time Series sendiri, sebenarnya ada banyak model yang bisa digunakan, seperti [Autoregressive Integrated Moving Average (ARIMA)](https://daps.bps.go.id/file_artikel/77/arima.pdf), [Vector Autoregression (VAR)](https://www.aptech.com/blog/introduction-to-the-fundamentals-of-vector-autoregressive-models/), dan masih banyak lagi. 
 
@@ -50,13 +51,22 @@ Dari data tersebut, terlihat bahwa rata-rata harga saham TLKM disajikan sangat l
 Dari grafik tersebut, dapat diambil kesimpulan bahwa harga saham TLKM mengalami perubahan secara signifikan dalam durasi tersebut. Pada tahun 2004 sampai 2008 merupakan lonjakan harga saham TLKM pertama, kemudian terjadi peningkatan yang sangat drastis di tahun 2012 - Q1 2018. Kemudian mengalami penurunan yang cukup signifikan di akhir tahun 2019 sampai 2 Oktober 2020 karena pengaruh COVID-19.
 
 ## Data Preparation
-Dalam tahap ini, saya menyiapkan dataframe yang telah menyimpan data dari CSV tersebut untuk dilakukan beberapa pengecekan, yaitu memeriksa adanya null values dan duplikasi data. Ini perlu dilakukan untuk menjaga akurasi dari prediksi model yang akan kita lakukan di proses pelatihan data. 
+Dalam tahap ini, saya menyiapkan dataframe yang telah menyimpan data dari CSV tersebut untuk dilakukan beberapa pengecekan, pertama kita perlu memeriksa adanya null values. Ini perlu dilakukan untuk menjaga akurasi dari prediksi model yang akan kita lakukan di proses pelatihan data. 
 
 Berikut hasil cek data null oleh library **pandas** : <br>
 
-![Check null values](https://github.com/ilhamadhim/TLKM-Stock-Analysis/blob/master/assets/check-null-values.png?raw=true)
+![Check null values](https://github.com/ilhamadhim/TLKM-Stock-Analysis/blob/master/assets/ada-null-values.png?raw=true)
 
-Berikut hasil cek duplikasi data oleh library **pandas** : <br>
+Dari 3980 data, terdapat 3944 data yang tidak ada null valuesnya, ini artinya ada beberapa data yang null. Untuk mengatasinya, kita bisa menghapus row yang null dengan **dropna()** dari library **pandas**
+
+
+```
+df_new = df.dropna(how='any',axis=0) 
+df_new
+```
+
+
+Kemudian, kita cek juga untuk duplikasi data. Berikut hasil cek duplikasi data oleh library **pandas** : <br>
 
 ![Check duplicate values](https://github.com/ilhamadhim/TLKM-Stock-Analysis/blob/master/assets/check-duplicate-values.png?raw=true)
 
@@ -64,10 +74,15 @@ Selain pengecekan data, kita juga perlu untuk mengatur skala data. Hal ini perlu
 
 ![MinMax Scaler Formula](https://i.stack.imgur.com/ruy6L.png)
 
+Setelah menghapus missing value dan duplikat data, serta melakukan penskalaan data menggunakan MinMax Scaler, perlu dilakukan train test splitting. Ini akan berguna untuk membagi seluruh data sebanyak 80% data awal proses pelatihan dan 20% pengujian data menggunakan Tensorflow.
 
 ## Modeling
 
-Dari banyaknya opsi penggunaan model yang ada untuk kasus Time Series, saya mencoba mengimplementasikan LSTM dalam pembuatan model. Selain karena ini merupakan pendekatan yang diajarkan di [Dicoding](https://www.dicoding.com/academies/185),  Beberapa keuntungan untuk menggunakan LSTM untuk kasus Time Series adalah:
+Dari banyaknya opsi penggunaan model yang ada untuk kasus Time Series, saya mencoba mengimplementasikan LSTM dalam pembuatan model. 
+
+Dalam prosesnya, kita telah mengetahui bahwa LSTM ini merupakan perbaikan dari RNN Tradisional dimana LSTM mampu menyimpan nilai yang penting dan menghapus nilai yang tidak penting dalam jangka waktu yang lama secara default.
+
+Selain karena ini merupakan pendekatan yang diajarkan di [Dicoding](https://www.dicoding.com/academies/185), Beberapa keuntungan untuk menggunakan LSTM untuk kasus Time Series adalah:
 
 1. Tidak ada prasyarat tertentu dalam implementasi model
 2. Dapat bekerja dengan baik untuk neural network dengan fungsi non-linear
@@ -78,6 +93,8 @@ Semakin kompleks sebuah model ML, maka kemungkinan model tersebut mengalami over
 <br>
 <br>
 ![image](https://d17ivq9b7rppb3.cloudfront.net/original/academy/20200803125202b077a1253a77def9b9e4ae6b553bc1cc.gif)
+
+Secara keseluruhan, alur dari arsitektur model ini adalah LSTM layer sebagai input layer, kemudian melewati dropout layer dengan value sebesar 0.5 untuk meningkatkan variasi output, barulah menggunakan Dense Layer dengan 1 unit perceptron sebagai output layernya.
 
 ## Model Evaluation
 
