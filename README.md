@@ -2,28 +2,27 @@
 
 ## Project Overview
 
-Seiring dengan perkembangan internet dan adanya kasus pandemi COVID-19, semakin banyak orang yang menyadari pentingnya manajemen finansial dan  memulai investasi ketika memiliki *cashflow* yang stabil dan mempunyai dana darurat. Namun dengan banyaknya perusahaan yang ada, sebagai pemula akan kebingungan untuk memulai investasi saham di perusahaan yang cocok. Jika kita investasi ke perusahaan tanpa mengenali profil perusahaan dan track record manajemen keuangan dari perusahaan tersebut, besar kemungkinan kita akan merugi dari segi waktu, effort, dan biaya. Oleh karena itu, sebagai pemula direkomendasikan untuk mencoba reksadana dan saham *Bluechip*
-
-Dikutip dari artikel [Kompas](https://money.kompas.com/read/2021/08/24/161914926/mengenal-apa-itu-saham-blue-chip-dan-contohnya?page=all)
-
-> "Saham blue chip adalah jenis saham dari perusahaan dengan kondisi keuangan prima, serta beroperasi selama bertahun lamanya. Kondisi keuangan prima terukur dari pendapatan perusahaan yang tumbuh stabil setiap tahun, dan kerap membagikan dividen kepada investor."
+Seiring dengan perkembangan internet dan adanya kasus pandemi COVID-19, semakin banyak orang yang menyadari pentingnya manajemen finansial dan memulai investasi. Namun dengan banyaknya perusahaan yang ada, pemula akan kebingungan untuk memulai investasi saham di perusahaan yang cocok. Jika kita investasi ke perusahaan tanpa mengenali profil perusahaan dan track record manajemen keuangan dari perusahaan tersebut, besar kemungkinan kita akan merugi dari segi waktu, effort, dan biaya. Oleh karena itu, sebagai pemula direkomendasikan untuk mencoba saham *Bluechip*
 
 Untuk [Daftar saham Bluechip](https://superyou.co.id/blog/keuangan/rekomendasi-saham-blue-chip/) di Indonesia cukup bervariasi. Dalam pengerjaan submission ini, saya mencoba untuk memprediksi harga saham TLKM oleh PT. Telkom Indonesia (Persero) Tbk. menggunakan data yang ada.
 
-
 ## Business Understanding
 ### Problem Statements
-Permasalahan inti dari projek ini adalah adanya peningkatan wawasan finansial dan investasi saham di masyarakat di masa pandemi COVID-19, namun tidak diimbangi dengan pengetahuan saham perusahaan mana yang aman untuk diinvestasikan. Oleh karena itu, diperlukan sebuah sistem untuk menganalisis dan memprediksi bagaimana pergerakan saham *bluechip* dalam beberapa tahun terakhir. Dalam projek ini, saham *bluechip* yang saya gunakan adalah saham dari PT. Telkom Indonesia (Persero) Tbk.
+1. Mengamati pergerakan saham *bluechip* dari PT. Telkom Indonesia (Persero) Tbk.
+2. Memprediksi pergerakan saham PT. Telkom Indonesia (Persero) Tbk. menggunakan data uji yang ada
 
 ### Goals
 Membuat prediksi harga saham PT Telkom Indonesia (Persero) Tbk. berdasarkan dataset yang ada.
 
 ### Solution statements
-Karena dataset terkait hanya berisi tentang data tanggal dan harga, maka solusi yang sangat tepat untuk masalah ini adalah dengan menggunakan pendekatan Time Series. 
+Karena dataset terkait hanya berisi tentang data tanggal dan harga, maka solusi yang tepat untuk masalah ini adalah dengan menggunakan pendekatan Time Series.
 
-Saya menggunakan 1 buah layer LSTM (Long Short Term Memory) dalam model.LSTM adalah jenis jaringan saraf berulang yang memiliki kemampuan untuk mengingat atau melupakan output dari data yang melalui arsitekturnya. Ini dilakukan tanpa mengubah konteks dari data yang ada. Dengan pendekatan ini, LSTM mampu mengatasi masalah RNN, yang mana RNN tidak mampu memprediksi kata yang disimpan dalam memori jangka panjang. Dengan bertambahnya panjang celah, RNN tidak memberikan kinerja yang efisien. Berbeda dengan LSTM yang dapat secara default menyimpan informasi. Dengan kinerja seperti ini, LSTM cocok untuk digunakan dalam proses analisa dan prediksi data deret waktu.
+Saya menggunakan 1 buah layer LSTM (Long Short Term Memory) dalam model.LSTM adalah jenis jaringan saraf berulang yang memiliki kemampuan untuk mengingat atau melupakan output dari data yang melalui arsitekturnya. Ini dilakukan tanpa mengubah konteks dari data yang ada. Dengan pendekatan ini, LSTM mampu mengatasi masalah RNN, yang mana RNN tidak mampu memprediksi kata yang disimpan dalam memori jangka panjang. Dengan bertambahnya panjang celah, RNN tidak memberikan kinerja yang efisien. Berbeda dengan LSTM yang dapat secara default menyimpan informasi. Dengan kinerja seperti ini, LSTM cocok untuk digunakan dalam proses analisa dan prediksi data deret waktu. Beberapa keuntungan untuk menggunakan LSTM untuk kasus Time Series adalah:
 
-Untuk kasus Time Series sendiri, sebenarnya ada banyak model yang bisa digunakan, seperti [Autoregressive Integrated Moving Average (ARIMA)](https://daps.bps.go.id/file_artikel/77/arima.pdf), [Vector Autoregression (VAR)](https://www.aptech.com/blog/introduction-to-the-fundamentals-of-vector-autoregressive-models/), dan masih banyak lagi. 
+1. Tidak ada prasyarat tertentu dalam implementasi model
+2. Dapat bekerja dengan baik untuk neural network dengan fungsi non-linear
+3. Cocok untuk digunakan di dataset yang banyak
+4. Dapat mengatur parameter tuning secara kustom agar menyesuaikan bentuk data.
 
 Menurut [referensi](https://www.springml.com/blog/time-series-forecasting-arima-vs-lstm/) yang saya baca, Saya memutuskan untuk menggunakan pembuatan model menggunakan layer **LSTM (Long Short Term Memory).** Untuk penggunaan [optimizer yang cocok](https://deepdatascience.wordpress.com/2016/11/18/which-lstm-optimizer-to-use/) di case Time Series, Saya akan menggunakan **Adam Optimizer** karena secara keseluruhan, optimizer ini sangat bagus jika dibandingkan dengan optimizer lain.
 
@@ -74,20 +73,18 @@ Selain pengecekan data, kita juga perlu untuk mengatur skala data. Hal ini perlu
 
 ![MinMax Scaler Formula](https://i.stack.imgur.com/ruy6L.png)
 
-Setelah menghapus missing value dan duplikat data, serta melakukan penskalaan data menggunakan MinMax Scaler, perlu dilakukan train test splitting. Ini akan berguna untuk membagi seluruh data sebanyak 80% data awal proses pelatihan dan 20% pengujian data menggunakan Tensorflow.
+Sebagai rangkuman, langkah yang telah saya lakukan untuk tahap ini adalah: 
+
+1. Penghapusan missing values 
+2. Penghapusan duplikat data
+3. Penskalaan Data dengan MinMax Scaler
+4. Train Test Split dataframe dengan ratio 80% data latih dan 20% data uji.
 
 ## Modeling
 
 Dari banyaknya opsi penggunaan model yang ada untuk kasus Time Series, saya mencoba mengimplementasikan LSTM dalam pembuatan model. 
 
 Dalam prosesnya, kita telah mengetahui bahwa LSTM ini merupakan perbaikan dari RNN Tradisional dimana LSTM mampu menyimpan nilai yang penting dan menghapus nilai yang tidak penting dalam jangka waktu yang lama secara default.
-
-Selain karena ini merupakan pendekatan yang diajarkan di [Dicoding](https://www.dicoding.com/academies/185), Beberapa keuntungan untuk menggunakan LSTM untuk kasus Time Series adalah:
-
-1. Tidak ada prasyarat tertentu dalam implementasi model
-2. Dapat bekerja dengan baik untuk neural network dengan fungsi non-linear
-3. Cocok untuk digunakan di dataset yang banyak
-4. Dapat mengatur parameter tuning secara kustom agar menyesuaikan bentuk data.
 
 Semakin kompleks sebuah model ML, maka kemungkinan model tersebut mengalami overfitting pun semakin tinggi. Walaupun secara arsitektur sudah cocok dengan data, menggunakan loss function yang tepat, dan metrik yang sesuai, masih ada kemungkinan overfitting. Oleh karena itu, selain LSTM saya juga menggunakan Dropout layer untuk mencegah terjadinya overfitting selama proses pelatihan data. Simpelnya, dropout layer yang berperan sebagai perantara hidden layer dan output layer ini dimatikan secara bergantian selama proses pelatihan data berlangsung. Dalam project ini, menggunakan dropout value sebesar 0.5, berikut ilustrasinya:
 <br>
@@ -118,7 +115,7 @@ Fungsi loss yang paling sederhana dan sering digunakan untuk kasus regresi
 
 <br>
 
-Model deep learning yang telah dibuat dapat melakukan proses training data dengan metrik dan loss function tersebut. Dalam prosesnya, terlihat hasil MAE yang relatif kecil yaitu sekitar 0.0186. Hal ini menunjukan bahwa model ini memiliki error dibawah 1.8%
+Model deep learning yang telah dibuat dapat melakukan proses training data dengan metrik dan loss function tersebut. Dalam prosesnya, terlihat hasil MAE yang relatif kecil yaitu sekitar 0.0290. Hal ini menunjukan bahwa model ini memiliki error dibawah 1.8%
 
 ## Penutup
 Demikian laporan dan metrik dari implementasi Machine Learning untuk analisis harga saham TLKM oleh PT. Telkom Indonesia Tbk. Terimakasih telah membaca laporan ini, semoga bermanfaat.
