@@ -54,7 +54,7 @@ Dalam tahap ini, saya menyiapkan dataframe yang telah menyimpan data dari CSV te
 
 Berikut hasil cek data null oleh library **pandas** : <br>
 
-![Check null values](https://github.com/ilhamadhim/TLKM-Stock-Analysis/blob/master/assets/ada-null-values.png?raw=true)
+![Check null values](https://github.com/ilhamadhim/TLKM-Stock-Analysis/blob/master/assets/ada-missing-values.png?raw=true)
 
 Dari 3980 data, terdapat 3944 data yang tidak ada null valuesnya, ini artinya ada beberapa data yang null. Untuk mengatasinya, kita bisa menghapus row yang null dengan **dropna()** dari library **pandas**
 
@@ -70,11 +70,13 @@ Kemudian, kita cek juga untuk duplikasi data. Berikut hasil cek duplikasi data o
 ![Check duplicate values](https://github.com/ilhamadhim/TLKM-Stock-Analysis/blob/master/assets/check-duplicate-values.png?raw=true)
 
 Selain pengecekan data, kita juga perlu untuk mengatur skala data. Hal ini perlu dilakukan agar skor MAE kita tidak menjadi terlalu besar, jika hal ini terjadi, akan mengakibatkan prediksi kita sangat buruk. Oleh karena itu, saya melakukan skala data menggunakan MinMax Scaler. Berikut formula dari MinMax Scaler: <br>
-
 ![MinMax Scaler Formula](https://i.stack.imgur.com/ruy6L.png)
 
-Sebagai rangkuman, langkah yang telah saya lakukan untuk tahap ini adalah: 
+Kemudian untuk langkah terakhir, perlu dilakukan train test splitting. 
 
+![Check duplicate values](https://github.com/ilhamadhim/TLKM-Stock-Analysis/blob/master/assets/result-train-test-split.png?raw=true)
+
+Sebagai rangkuman, langkah yang telah saya lakukan untuk tahap ini adalah: 
 1. Penghapusan missing values 
 2. Penghapusan duplikat data
 3. Penskalaan Data dengan MinMax Scaler
@@ -115,7 +117,7 @@ Fungsi loss yang paling sederhana dan sering digunakan untuk kasus regresi
 
 <br>
 
-Model deep learning yang telah dibuat dapat melakukan proses training data dengan metrik dan loss function tersebut. Dalam prosesnya, terlihat hasil MAE yang relatif kecil yaitu sekitar 0.0290. Hal ini menunjukan bahwa model ini memiliki error dibawah 1.8%
+Model deep learning yang telah dibuat dapat melakukan proses training data dengan metrik dan loss function tersebut. Dalam prosesnya, terlihat hasil MAE yang relatif kecil yaitu sekitar 0.0370. Hal ini menunjukan bahwa model ini memiliki error dibawah 1.8%
 
 ## Penutup
 Demikian laporan dan metrik dari implementasi Machine Learning untuk analisis harga saham TLKM oleh PT. Telkom Indonesia Tbk. Terimakasih telah membaca laporan ini, semoga bermanfaat.
