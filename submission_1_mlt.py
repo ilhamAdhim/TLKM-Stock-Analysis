@@ -19,33 +19,34 @@ Original file is located at
 > Karena dataset terkait hanya berisi tentang data tanggal dan harga, maka solusi yang sangat tepat untuk masalah ini adalah dengan menggunakan pendekatan Time Series.
 """
 
+import opendatasets as od
+from keras.callbacks import EarlyStopping
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler
+from tensorflow.keras.optimizers import Adam
+from keras.models import Sequential
+from keras.layers import Dense, LSTM, Dropout
+import matplotlib.dates as mdates
+import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
+import matplotlib
+import tensorflow as tf
+import pandas as pd
+import numpy as np
 !pip install opendatasets
 
 # Import all required libraries
-import numpy as np
-import pandas as pd
-import tensorflow as tf
-import matplotlib
-import matplotlib.ticker as ticker
-import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
 
 # Importing layers from keras. Use LSTM for input layer, and Dense for hidden and output layer
-from keras.layers import Dense, LSTM, Dropout
-from keras.models import Sequential
 
 # Import Adam Optimizers
-from tensorflow.keras.optimizers import Adam
 
 # Import for splitting test and training data set
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.model_selection import train_test_split
-import seaborn as sns
 
-from keras.callbacks import  EarlyStopping
-import opendatasets as od
 
-od.download("https://www.kaggle.com/fawwazzainiahmad/indonesian-government-owned-company-stock-price")
+od.download(
+    "https://www.kaggle.com/fawwazzainiahmad/indonesian-government-owned-company-stock-price")
 
 """# Data Understanding
 
@@ -60,17 +61,20 @@ Untuk submission ini, saya mengambil data dari [Kaggle](https://www.kaggle.com) 
   * Volume - Jumlah transaksi saham di tanggal tersebut (datatype : float64)
 """
 
-df = pd.read_csv('/content/indonesian-government-owned-company-stock-price/TLKM.JK.csv', parse_dates=True, squeeze=True)
+df = pd.read_csv('/content/indonesian-government-owned-company-stock-price/TLKM.JK.csv',
+                 parse_dates=True, squeeze=True)
 df
 
 print("Total Data : {} \n".format(len(df)))
-print("Date range from : {} to {}".format(df.head(1)['Date'].values, df.tail(1)['Date'].values))
+print("Date range from : {} to {}".format(
+    df.head(1)['Date'].values, df.tail(1)['Date'].values))
 
 df.info()
 
+
 """Dari 3980 data, terdapat 3944 data yang tidak ada null valuesnya, ini artinya ada beberapa data yang null. Untuk mengatasinya, kita bisa menghapus row yang null dengan **dropna()** dari library **pandas**"""
 
-df_new = df.dropna(how='any',axis=0) 
+df_new = df.dropna(how='any', axis=0)
 df_new
 
 df_new.describe()
@@ -79,14 +83,14 @@ df_new.describe()
 Ini perlu dilakukan karena kita ingin melihat perkembangan harga nya dari tahun ke tahun, bukan dari hari ke hari.
 """
 
-df_new['Date'] = pd.to_datetime(df_new['Date'] , format='%Y-%m-%d')
+df_new['Date'] = pd.to_datetime(df_new['Date'], format='%Y-%m-%d')
 df_new['Date']
 
 """Dalam proses data understanding, saya menggunakan visualisasi data berupa grafik karena saya ingin mengetahui perkembangan harga saham TLKM dari dataset dan periode yang ada """
 
-visual_plot =df_new[['Date','Close', 'Open', 'High']]
+visual_plot = df_new[['Date', 'Close', 'Open', 'High']]
 
-plt.figure(figsize=(20,10))
+plt.figure(figsize=(20, 10))
 
 sns.lineplot(y=visual_plot['Open'], color="r", x=visual_plot['Date'])
 sns.lineplot(y=visual_plot['Close'], color="g", x=visual_plot['Date'])
@@ -94,7 +98,7 @@ sns.lineplot(y=visual_plot['High'], color="cyan", x=visual_plot['Date'])
 
 plt.xlabel('Tahun', fontsize=20)
 plt.ylabel('Harga (IDR)', fontsize=20)
-plt.legend(['Open','Close','High'], loc='upper right')
+plt.legend(['Open', 'Close', 'High'], loc='upper right')
 
 """# **Data Preparation**
 
@@ -106,16 +110,37 @@ df_new.isnull().sum()
 check_duplicates = df_new[df_new.duplicated()]
 print(check_duplicates)
 
-"""Hanya memilih kolom 'Date' dan 'Close' untuk proses persiapan data dan implementasi MinMaxScaler agar data yang diproses terskala dengan rapi"""
+# Correlation between different variables
+corr = df.corr()
 
-df_new.index = df_new['Date']
-df_new = df_new.drop(['Date','Open','High','Low', 'Volume', 'Adj Close'], axis=1)
+# Set up the matplotlib plot configuration
+f, ax = plt.subplots(figsize=(12, 10))
 
-minmax_scaler = MinMaxScaler()
-df_scaled = minmax_scaler.fit_transform(df_new)
-train_set, test_set = df_scaled[0:int(len(df_scaled)*0.8), :], df_scaled[int(len(df_scaled)*0.8):len(df_scaled), :]
+# Generate a mask for upper traingle
+mask = np.triu(np.ones_like(corr, dtype=bool))
 
-"""Penggunaan fungsi untuk proses window sebelum dilakukan splitting data untuk menentukan 80% data latih dan 20% data uji"""
+# Configure a custom diverging colormap
+cmap = sns.diverging_palette(230, 20, as_cmap=True)
+
+# Draw the heatmap
+sns.heatmap(corr, annot=True, mask=mask, cmap=cmap)
+
+"""Berdasarkan heatplot tersebut, dapat ditarik kesimpulan bahwa fitur yang saling memiliki korelasi sempurna adalah kolom High, Low, dan Close. Namun, kita 
+hanya perlu menggunakan kolom 'Date' dan 'Close' untuk proses persiapan data. Kolom 'Date' sebagai indikator waktu, dan kolom 'Close' menjadi patokan harga karena merupakan harga saham TLKM pada saat hari tersebut berakhir.
+"""
+
+df_new_dropped = df_new.drop(
+    ['Date', 'Open', 'High', 'Low', 'Volume', 'Adj Close'], axis=1)
+df_new_dropped.index = df_new['Date']
+
+# Splitting dataset
+train_set = df_new_dropped[:int(len(df_new_dropped)*0.8):]
+test_set = df_new_dropped[int(len(df_new_dropped)*0.8):len(df_new_dropped):]
+
+train_set
+
+test_set
+
 
 def dataset_preparation(dataset, window):
     dframe = []
@@ -124,14 +149,27 @@ def dataset_preparation(dataset, window):
     for i in range(len(dataset) - window - 1):
         data = dataset[i:(i + window), 0]
         dframe.append(data)
-        label.append(dataset[i+window,0])
+        label.append(dataset[i+window, 0])
     return np.array(dframe), np.array(label)
 
-x_train, y_train = dataset_preparation(train_set,80)
-x_test, y_test = dataset_preparation(test_set,80)
-x_train = np.reshape(x_train, (x_train.shape[0], x_train.shape[1],1))
-x_test = np.reshape(x_test, (x_test.shape[0], x_train.shape[1],1))
 
+# MinMax Scaling
+minmax_scaler = MinMaxScaler()
+scaled_train_set = minmax_scaler.fit_transform(train_set)
+scaled_test_set = minmax_scaler.fit_transform(test_set)
+
+# Prepare dataset with defined window size
+x_train, y_train = dataset_preparation(scaled_train_set, 80)
+x_test, y_test = dataset_preparation(scaled_test_set, 80)
+
+# Reshaping
+x_train = np.reshape(x_train, (x_train.shape[0], x_train.shape[1], 1))
+x_test = np.reshape(x_test, (x_test.shape[0], x_train.shape[1], 1))
+
+print("\n----MinMax Scaled Data----")
+print("All data : {}".format(len(scaled_train_set)))
+
+print("\n----Splitted Data----")
 print("Train Set shapes : {} {}".format(x_train.shape, y_train.shape))
 print("Test Set shapes : {} {}".format(x_test.shape, y_test.shape))
 
@@ -142,9 +180,10 @@ Penggunaan LSTM sebagai input layer, Dropout sebagai hidden layer, dan Dense  se
 
 # Arsitektur Model
 model = Sequential([
-  LSTM(40),
-  Dropout(0.5),
-  Dense(1),
+    LSTM(40),
+    Dropout(0.5),
+    Dense(32),
+    Dense(1),
 ])
 
 """Menggunakan Adam Optimizer dengan learning rate 0.01. Menggunakan Mean Absolute Error (MAE) metrics dan Mean Squared Error (MSE) sebagai loss function"""
@@ -182,7 +221,7 @@ history = model.fit(x_train,
 figure, axes = plt.subplots(nrows=2, ncols=2)
 figure.tight_layout(pad=3.0)
 
-plt.subplot(1, 2, 1) # row 1, col 2 index 1
+plt.subplot(1, 2, 1)  # row 1, col 2 index 1
 plt.plot(history.history['mae'])
 plt.plot(history.history['val_mae'], 'r')
 plt.title('Training and Testing MAE Value')
@@ -190,7 +229,7 @@ plt.xlabel('epoch')
 plt.legend(['Training MAE', 'Testing MAE'], loc='upper right')
 
 # Create plot for loss and val_loss
-plt.subplot(1, 2, 2) # index 2
+plt.subplot(1, 2, 2)  # index 2
 plt.plot(history.history['loss'])
 plt.plot(history.history['val_loss'])
 plt.title('Training and Testing Loss Value')
@@ -201,22 +240,23 @@ plt.show()
 
 """# **Model Prediction**"""
 
-predict_test = model.predict(x_train)
+predict_test = model.predict(x_test)
 predict_test = minmax_scaler.inverse_transform(predict_test)
-actual_test = minmax_scaler.inverse_transform([y_train])
+actual_test = minmax_scaler.inverse_transform([y_test])
 
 """Membuat dataframe baru untuk menyimpan prediction dan actual value, kemudian menambahkan kolom 'Date' dari variable df. Setelah semua kolom mempunyai data, kita dapat melihat harga asli dan prediksi harga dari data training yang telah dijalankan"""
 
-data_predict_and_actual = {'actual_value':actual_test[0], 'prediction_value' : predict_test[:,0]}
+data_predict_and_actual = {
+    'actual_value': actual_test[0], 'prediction_value': predict_test[:, 0]}
 
 df_predict = pd.DataFrame(data_predict_and_actual)
 df_predict['Date'] = df['Date'][:len(df_predict['actual_value'])]
 
-df_predict.plot(x="Date" )
+df_predict.plot(x="Date")
 plt.ylabel('Harga Rupiah', size=12)
 
 plt.xlabel('Date', size=12)
 plt.xticks(rotation=30)
 
-plt.legend(["Actual", "Prediction"], fontsize=15, loc='upper left')
-plt.show();
+plt.legend(["Actual", "Prediction"], fontsize=15, loc='lower left')
+plt.show()

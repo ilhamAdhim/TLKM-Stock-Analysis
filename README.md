@@ -8,16 +8,17 @@ Untuk [Daftar saham Bluechip](https://superyou.co.id/blog/keuangan/rekomendasi-s
 
 ## Business Understanding
 ### Problem Statements
-1. Mengamati pergerakan saham *bluechip* dari PT. Telkom Indonesia (Persero) Tbk.
-2. Memprediksi pergerakan saham PT. Telkom Indonesia (Persero) Tbk. menggunakan data uji yang ada
+1. Bagaimana cara mengetahui fitur yang terhadap pergerakan harga saham PT. Telkom Indonesia (Persero) Tbk. ?
+2. Bagaimana cara membuat model machine learning untuk memprediksi saham PT. Telkom Indonesia (Persero) Tbk. menggunakan data uji yang ada?
 
 ### Goals
-Membuat prediksi harga saham PT Telkom Indonesia (Persero) Tbk. berdasarkan dataset yang ada.
+1. Mengetahui fitur yang mempengaruhi harga saham PT Telkom Indonesia (Persero) Tbk.
+2. Membuat model machine learning untuk memprediksi saham PT Telkom Indonesia (Persero) Tbk.
 
 ### Solution statements
-Karena dataset terkait hanya berisi tentang data tanggal dan harga, maka solusi yang tepat untuk masalah ini adalah dengan menggunakan pendekatan Time Series.
+Karena dataset terkait hanya berisi tentang data tanggal dan harga, maka solusi yang tepat untuk masalah ini adalah dengan menggunakan pendekatan Time Series. Untuk memahami fitur yang memiliki pengaruh terhadap harga saham, saya akan menggunakan Heatplot agar pemetaan korelasi antar kolom menjadi lebih mudah dimengerti.
 
-Saya menggunakan 1 buah layer LSTM (Long Short Term Memory) dalam model.LSTM adalah jenis jaringan saraf berulang yang memiliki kemampuan untuk mengingat atau melupakan output dari data yang melalui arsitekturnya. Ini dilakukan tanpa mengubah konteks dari data yang ada. Dengan pendekatan ini, LSTM mampu mengatasi masalah RNN, yang mana RNN tidak mampu memprediksi kata yang disimpan dalam memori jangka panjang. Dengan bertambahnya panjang celah, RNN tidak memberikan kinerja yang efisien. Berbeda dengan LSTM yang dapat secara default menyimpan informasi. Dengan kinerja seperti ini, LSTM cocok untuk digunakan dalam proses analisa dan prediksi data deret waktu. Beberapa keuntungan untuk menggunakan LSTM untuk kasus Time Series adalah:
+Untuk model machine learning yang digunakan, saya menggunakan 1 buah layer LSTM (Long Short Term Memory) dalam model.LSTM adalah jenis jaringan saraf berulang yang memiliki kemampuan untuk mengingat atau melupakan output dari data yang melalui arsitekturnya. Ini dilakukan tanpa mengubah konteks dari data yang ada. Dengan pendekatan ini, LSTM mampu mengatasi masalah RNN, yang mana RNN tidak mampu memprediksi kata yang disimpan dalam memori jangka panjang. Dengan bertambahnya panjang celah, RNN tidak memberikan kinerja yang efisien. Berbeda dengan LSTM yang dapat secara default menyimpan informasi. Dengan kinerja seperti ini, LSTM cocok untuk digunakan dalam proses analisa dan prediksi data deret waktu. Beberapa keuntungan untuk menggunakan LSTM untuk kasus Time Series adalah:
 
 1. Tidak ada prasyarat tertentu dalam implementasi model
 2. Dapat bekerja dengan baik untuk neural network dengan fungsi non-linear
@@ -69,18 +70,18 @@ Kemudian, kita cek juga untuk duplikasi data. Berikut hasil cek duplikasi data o
 
 ![Check duplicate values](https://github.com/ilhamadhim/TLKM-Stock-Analysis/blob/master/assets/check-duplicate-values.png?raw=true)
 
-Selain pengecekan data, kita juga perlu untuk mengatur skala data. Hal ini perlu dilakukan agar skor MAE kita tidak menjadi terlalu besar, jika hal ini terjadi, akan mengakibatkan prediksi kita sangat buruk. Oleh karena itu, saya melakukan skala data menggunakan MinMax Scaler. Berikut formula dari MinMax Scaler: <br>
+Langkah selanjutnya adalah membagi dataset ke data latih dan data uji
+![Pembagian Data latih & Data Uji](https://github.com/ilhamadhim/TLKM-Stock-Analysis/blob/master/assets/korelasi-antar-fitur.png?raw=true)
+
+Selain pengecekan data dan pembagian dataset ke data latih dan data uji, kita juga perlu untuk mengatur skala data. Hal ini perlu dilakukan agar skor MAE kita tidak menjadi terlalu besar, jika hal ini terjadi, akan mengakibatkan prediksi kita sangat buruk. Oleh karena itu, saya melakukan skala data menggunakan MinMax Scaler. Berikut formula dari MinMax Scaler: <br>
 ![MinMax Scaler Formula](https://i.stack.imgur.com/ruy6L.png)
 
-Kemudian untuk langkah terakhir, perlu dilakukan train test splitting. 
-
-![Check duplicate values](https://github.com/ilhamadhim/TLKM-Stock-Analysis/blob/master/assets/result-train-test-split.png?raw=true)
 
 Sebagai rangkuman, langkah yang telah saya lakukan untuk tahap ini adalah: 
 1. Penghapusan missing values 
 2. Penghapusan duplikat data
-3. Penskalaan Data dengan MinMax Scaler
-4. Train Test Split dataframe dengan ratio 80% data latih dan 20% data uji.
+3. Train Test Split dengan ratio 80% data latih dan 20% data uji.
+4. Penskalaan data latih dan data uji dengan MinMax Scaler untuk mencegah data leakage
 
 ## Modeling
 
@@ -98,10 +99,10 @@ Secara keseluruhan, alur dari arsitektur model ini adalah LSTM layer sebagai inp
 ## Model Evaluation
 
 Berikut visualisasi untuk nilai MAE dan loss value di tahap pelatihan dan pengujian <br><br>
-![Model Evaluation Result](https://github.com/ilhamadhim/TLKM-Stock-Analysis/blob/master/assets/model_evaluation.png?raw=true)
+![Model Evaluation Result](https://github.com/ilhamadhim/TLKM-Stock-Analysis/blob/master/assets/model_evaluation_updated.png?raw=true)
 
 Berikut visualisasi untuk prediksi data latih harga saham TLKM dibandingkan dengan data aslinya dalam periode 28 September 2004 - 29 November 2016 (80% dataset) <br><br>
-![Prediction Result](https://github.com/ilhamadhim/TLKM-Stock-Analysis/blob/master/assets/model_prediction.png?raw=true)
+![Prediction Result](https://github.com/ilhamadhim/TLKM-Stock-Analysis/blob/master/assets/model_prediction_updated.png?raw=true)
 
 
 ## Evaluation
