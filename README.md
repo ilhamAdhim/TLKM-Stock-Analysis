@@ -99,7 +99,7 @@ Secara keseluruhan, alur dari arsitektur model ini adalah LSTM layer sebagai inp
 ## Model Evaluation
 
 Berikut visualisasi untuk nilai MAE dan loss value di tahap pelatihan dan pengujian <br><br>
-![Model Evaluation Result](https://github.com/ilhamadhim/TLKM-Stock-Analysis/blob/master/assets/model_evaluation_updated.png?raw=true)
+![Model Evaluation Result](https://github.com/ilhamadhim/TLKM-Stock-Analysis/blob/master/assets/model_evaluation_revisi.png?raw=true)
 
 Berikut visualisasi untuk prediksi data latih harga saham TLKM dibandingkan dengan data aslinya dalam periode 28 September 2004 - 29 November 2016 (80% dataset) <br><br>
 ![Prediction Result](https://github.com/ilhamadhim/TLKM-Stock-Analysis/blob/master/assets/model_prediction_updated.png?raw=true)
