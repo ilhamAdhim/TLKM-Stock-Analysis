@@ -19,6 +19,7 @@ Original file is located at
 > Karena dataset terkait hanya berisi tentang data tanggal dan harga, maka solusi yang sangat tepat untuk masalah ini adalah dengan menggunakan pendekatan Time Series.
 """
 
+from sklearn.decomposition import PCA
 import opendatasets as od
 from keras.callbacks import EarlyStopping
 import seaborn as sns
@@ -100,7 +101,13 @@ plt.xlabel('Tahun', fontsize=20)
 plt.ylabel('Harga (IDR)', fontsize=20)
 plt.legend(['Open', 'Close', 'High'], loc='upper right')
 
-"""# **Data Preparation**
+# Correlation between different variables
+corr = df.corr()
+sns.heatmap(data=corr, annot=True, cmap='coolwarm', linewidths=0.5, )
+
+"""Berdasarkan heatplot tersebut, dapat ditarik kesimpulan bahwa fitur yang memiliki korelasi rendah adalah kolom Volume. Untuk prediksi harga, tentu kita harus memilih antara kolom Open, High, Low, dan Close. Namun, dengan adanya reduksi dimensi, kita dapat menyederhanakan harga tersebut menjadi harga final pada hari itu juga.  Proses reduksi dimensi ini akan dilakukan di tahap Data Preparation menggunakan teknik PCA
+
+# **Data Preparation**
 
 Memastikan bahwa dataset aman dari missing values dan tidak terdapat duplikasi
 """
@@ -110,28 +117,23 @@ df_new.isnull().sum()
 check_duplicates = df_new[df_new.duplicated()]
 print(check_duplicates)
 
-# Correlation between different variables
-corr = df.corr()
+df_new_dropped = df_new.drop(['Volume'], axis=1)
 
-# Set up the matplotlib plot configuration
-f, ax = plt.subplots(figsize=(12, 10))
+"""Reduksi Dimensi dengan PCA """
 
-# Generate a mask for upper traingle
-mask = np.triu(np.ones_like(corr, dtype=bool))
+pca = PCA(n_components=1, random_state=123)
+pca.fit(df_new_dropped[['Low', 'Open', 'High', 'Close', 'Adj Close']])
 
-# Configure a custom diverging colormap
-cmap = sns.diverging_palette(230, 20, as_cmap=True)
+df_new_dropped['dimension'] = pca.transform(
+    df_new_dropped.loc[:, ('Low', 'Open', 'High', 'Close', 'Adj Close')]).flatten()
+df_new_dropped.drop(['Low', 'Open', 'High', 'Close',
+                     'Adj Close'], axis=1, inplace=True)
 
-# Draw the heatmap
-sns.heatmap(corr, annot=True, mask=mask, cmap=cmap)
+df_new_dropped
 
-"""Berdasarkan heatplot tersebut, dapat ditarik kesimpulan bahwa fitur yang saling memiliki korelasi sempurna adalah kolom High, Low, dan Close. Namun, kita 
-hanya perlu menggunakan kolom 'Date' dan 'Close' untuk proses persiapan data. Kolom 'Date' sebagai indikator waktu, dan kolom 'Close' menjadi patokan harga karena merupakan harga saham TLKM pada saat hari tersebut berakhir.
-"""
-
-df_new_dropped = df_new.drop(
-    ['Date', 'Open', 'High', 'Low', 'Volume', 'Adj Close'], axis=1)
-df_new_dropped.index = df_new['Date']
+df_new_dropped.index = df_new_dropped['Date']
+df_new_dropped = df_new_dropped.drop(columns='Date')
+df_new_dropped
 
 # Splitting dataset
 train_set = df_new_dropped[:int(len(df_new_dropped)*0.8):]

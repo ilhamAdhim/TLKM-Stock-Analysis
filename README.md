@@ -8,7 +8,7 @@ Untuk [Daftar saham Bluechip](https://superyou.co.id/blog/keuangan/rekomendasi-s
 
 ## Business Understanding
 ### Problem Statements
-1. Bagaimana cara mengetahui fitur yang terhadap pergerakan harga saham PT. Telkom Indonesia (Persero) Tbk. ?
+1. Bagaimana cara mengetahui fitur yang berpengaruh terhadap pergerakan harga saham PT. Telkom Indonesia (Persero) Tbk. ?
 2. Bagaimana cara membuat model machine learning untuk memprediksi saham PT. Telkom Indonesia (Persero) Tbk. menggunakan data uji yang ada?
 
 ### Goals
@@ -50,6 +50,10 @@ Dari data tersebut, terlihat bahwa rata-rata harga saham TLKM disajikan sangat l
 
 Dari grafik tersebut, dapat diambil kesimpulan bahwa harga saham TLKM mengalami perubahan secara signifikan dalam durasi tersebut. Pada tahun 2004 sampai 2008 merupakan lonjakan harga saham TLKM pertama, kemudian terjadi peningkatan yang sangat drastis di tahun 2012 - Q1 2018. Kemudian mengalami penurunan yang cukup signifikan di akhir tahun 2019 sampai 2 Oktober 2020 karena pengaruh COVID-19.
 
+Sebelum melanjutkan ke tahap preparation, kita perlu untuk melihat korelasi antar fitur yang mempengaruhi pergerakan saham berdasarkan dataset yang ada. Saya mencoba menyajikan korelasi tersebut dalam bentuk heatmap agar dapat dipetakan dengan jelas. 
+
+![Heatmap korelasi antar fitur](https://github.com/ilhamadhim/TLKM-Stock-Analysis/blob/master/assets/korelasi-antar-fitur-updated.png?raw=true)
+
 ## Data Preparation
 Dalam tahap ini, saya menyiapkan dataframe yang telah menyimpan data dari CSV tersebut untuk dilakukan beberapa pengecekan, pertama kita perlu memeriksa adanya null values. Ini perlu dilakukan untuk menjaga akurasi dari prediksi model yang akan kita lakukan di proses pelatihan data. 
 
@@ -70,8 +74,6 @@ Kemudian, kita cek juga untuk duplikasi data. Berikut hasil cek duplikasi data o
 
 ![Check duplicate values](https://github.com/ilhamadhim/TLKM-Stock-Analysis/blob/master/assets/check-duplicate-values.png?raw=true)
 
-Langkah selanjutnya adalah membagi dataset ke data latih dan data uji
-![Pembagian Data latih & Data Uji](https://github.com/ilhamadhim/TLKM-Stock-Analysis/blob/master/assets/korelasi-antar-fitur.png?raw=true)
 
 Selain pengecekan data dan pembagian dataset ke data latih dan data uji, kita juga perlu untuk mengatur skala data. Hal ini perlu dilakukan agar skor MAE kita tidak menjadi terlalu besar, jika hal ini terjadi, akan mengakibatkan prediksi kita sangat buruk. Oleh karena itu, saya melakukan skala data menggunakan MinMax Scaler. Berikut formula dari MinMax Scaler: <br>
 ![MinMax Scaler Formula](https://i.stack.imgur.com/ruy6L.png)
