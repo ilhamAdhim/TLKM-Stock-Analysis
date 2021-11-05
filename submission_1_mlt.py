@@ -35,7 +35,7 @@ import matplotlib
 import tensorflow as tf
 import pandas as pd
 import numpy as np
-!pip install opendatasets
+# pip install opendatasets
 
 # Import all required libraries
 

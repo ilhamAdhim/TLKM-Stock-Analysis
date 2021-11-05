@@ -74,6 +74,9 @@ Kemudian, kita cek juga untuk duplikasi data. Berikut hasil cek duplikasi data o
 
 ![Check duplicate values](https://github.com/ilhamadhim/TLKM-Stock-Analysis/blob/master/assets/check-duplicate-values.png?raw=true)
 
+Langkah berikutnya adalah reduksi dimensi dengan menggunakan PCA. Dari Heatmap korelasi di bagian Data Understanding, dapat kita simpulkan bahwa kolom yang mempunyai korelasi rendah adalah kolom 'Volume'. Setelah menghapus kolom tersebut, tersisa kolom 'Low', 'Open','High','Close', dan 'Adj Close'. Untuk meningkatkan efisiensi pelatihan model dengan cara meminimalisasi fitur yang digunakan tanpa menghapus informasi yang ada didalamnya
+
+![Reduksi Dimensi PCA](https://github.com/ilhamadhim/TLKM-Stock-Analysis/blob/master/assets/reduksi-dimensi-pca.png?raw=true)
 
 Selain pengecekan data dan pembagian dataset ke data latih dan data uji, kita juga perlu untuk mengatur skala data. Hal ini perlu dilakukan agar skor MAE kita tidak menjadi terlalu besar, jika hal ini terjadi, akan mengakibatkan prediksi kita sangat buruk. Oleh karena itu, saya melakukan skala data menggunakan MinMax Scaler. Berikut formula dari MinMax Scaler: <br>
 ![MinMax Scaler Formula](https://i.stack.imgur.com/ruy6L.png)
@@ -82,8 +85,9 @@ Selain pengecekan data dan pembagian dataset ke data latih dan data uji, kita ju
 Sebagai rangkuman, langkah yang telah saya lakukan untuk tahap ini adalah: 
 1. Penghapusan missing values 
 2. Penghapusan duplikat data
-3. Train Test Split dengan ratio 80% data latih dan 20% data uji.
-4. Penskalaan data latih dan data uji dengan MinMax Scaler untuk mencegah data leakage
+3. Reduksi Dimensi dengan PCA
+4. Train Test Split dengan ratio 80% data latih dan 20% data uji.
+5. Penskalaan data latih dan data uji dengan MinMax Scaler untuk mencegah data leakage
 
 ## Modeling
 
